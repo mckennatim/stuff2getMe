@@ -67,6 +67,7 @@ var okCancelEvents = function (selector, callbacks) {
   return events;
 };
 
+
 var activateInput = function (input) {
   input.focus();
   input.select();
@@ -83,7 +84,7 @@ Template.lists.lists = function () {
   return Lists.find({}, {sort: {name: 1}});
 };
 
-////////// Items //////////
+////////// Items and nitems //////////
 
 Template.items.loading = function () {
   return itemsHandle && !itemsHandle.ready();
@@ -93,17 +94,12 @@ Template.items.any_list_selected = function () {
   return !Session.equals('list_id', null);
 };
 
-Template.items.items = function () {
-  // Determine which items to display in main pane,
-  // selected based on list_id and tag_filter.
-  var list_id = Session.get('list_id');
-  if (!list_id)
-    return {};
-  var sel = {list_id: list_id};
-  var tag_filter = Session.get('tag_filter');
-  if (tag_filter)
-    sel.tags = tag_filter;
-  return Items.find(sel, {sort: {timestamp: 1}});
+Template.nitems.loading = function () {
+  return itemsHandle && !itemsHandle.ready();
+};
+
+Template.nitems.any_list_selected = function () {
+  return !Session.equals('list_id', null);
 };
 
 Template.items.events(okCancelEvents(
@@ -122,31 +118,85 @@ Template.items.events(okCancelEvents(
     }
   }));
 
+Template.items.events = {
+  'keypress input#new-item': function (evt){
+    tval = String.fromCharCode(evt.which);
+    console.log(tval);
+  }
+};
+
+
+Template.items.items = function () {
+  // Determine which items to display in main pane,
+  // selected based on list_id and tag_filter.
+  var list_id = Session.get('list_id');
+  if (!list_id)
+    return {};
+  var sel = {list_id: list_id, done: false
+  };
+  var tag_filter = Session.get('tag_filter');
+  if (tag_filter)
+    sel.tags = tag_filter;
+  return Items.find(sel, {sort: {timestamp: 1}});
+};
+
+Template.nitems.items = function () {
+  // Determine which items to display in main pane,
+  // selected based on list_id and tag_filter.
+  var list_id = Session.get('list_id');
+  if (!list_id)
+    return {};
+  var sel = {list_id: list_id, done: true};
+  var tag_filter = Session.get('tag_filter');
+  if (tag_filter)
+    sel.tags = tag_filter;
+  return Items.find(sel, {sort: {timestamp: 1}});
+};
+
+Template.item_item.tag_objs = function () {
+  var item_id = this._id;
+  return _.map(this.tags || [], function (tag) {
+    return {item_id: item_id, tag: tag};
+  });
+};
+
+Template.item_item.done_class = function () {
+  return this.done ? 'done' : '';
+};
+
+Template.item_item.done_checkbox = function () {
+  return this.done ? 'checked="checked"' : '';
+};
+
+Template.item_item.editing = function () {
+  return Session.equals('editing_itemname', this._id);
+};
+
+Template.item_item.adding_tag = function () {
+  return Session.equals('editing_addtag', this._id);
+};
+
+
 Template.item_item.events({
   'click .check': function () {
     Items.update(this._id, {$set: {done: !this.done}});
   },
-
   'click .destroy': function () {
     Items.remove(this._id);
   },
-
   'click .addtag': function (evt, tmpl) {
     Session.set('editing_addtag', this._id);
     Deps.flush(); // update DOM before focus
     activateInput(tmpl.find("#edittag-input"));
   },
-
   'dblclick .display .todo-text': function (evt, tmpl) {
     Session.set('editing_itemname', this._id);
     Deps.flush(); // update DOM before focus
     activateInput(tmpl.find("#todo-input"));
   },
-
   'click .remove': function (evt) {
     var tag = this.tag;
     var id = this.item_id;
-
     evt.target.parentNode.style.opacity = 0;
     // wait for CSS animation to finish
     Meteor.setTimeout(function () {

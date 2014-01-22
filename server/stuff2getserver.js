@@ -23,13 +23,3 @@ Meteor.publish('items', function (list_id) {
 
 
 
-/*
-Meteor.methods({
-    addItem : function(){
-      console.log('Adding Item server');
-      var item = Lists.insert({"id": 4,"repo": "Dobaza","list": "groceries","stuff": "Granny smith apple","need": 0});
-      console.log(item);
-    //return item.stuff;
-    },
-});
-*/

@@ -1,7 +1,15 @@
 {
   "meteor": {},
   "dependencies": {
-    "basePackages": {},
-    "packages": {}
+    "basePackages": {
+      "bootstrap-slate": {}
+    },
+    "packages": {
+      "bootstrap-slate": {
+        "git": "https://github.com/mickeyren/meteor-bootstrap-slate.git",
+        "tag": "v0.0.1",
+        "commit": "03e01f40019b63517c922b882821d3eb66b31140"
+      }
+    }
   }
 }

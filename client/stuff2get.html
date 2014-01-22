@@ -10,6 +10,7 @@
 
   <div id="main-pane">
     {{> items}}
+    {{> nitems}}
   </div>
 
   <div id="side-pane">
@@ -46,16 +47,33 @@
 </template>
 
 <template name="items">
-  <h3>Items</h3>
+  <h3>Need These Items</h3>
   {{#if any_list_selected}}
-    <div id="items-view">
+    <div id="items-view" class="items-view">
       {{#if loading}}
         Loading...
       {{else}}
+        <ul id="item-list" class="item-list">
+          {{#each items}}
+            {{> item_item}}
+          {{/each}}
+        </ul>
         <div id="new-item-box">
           <input type="text" id="new-item" placeholder="New item" />
         </div>
-        <ul id="item-list">
+      {{/if}}
+    </div>
+  {{/if}}
+</template>
+
+<template name="nitems"> 
+  <h3>Items Formerly Needed</h3>
+    {{#if any_list_selected}}
+    <div id="nitems-view"class="items-view">
+      {{#if loading}}
+        Loading...
+      {{else}}
+        <ul id="nitem-list" class="item-list">
           {{#each items}}
             {{> item_item}}
           {{/each}}
